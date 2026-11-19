@@ -1,0 +1,8 @@
+
+> tesla-web-dashboard@1.0.0 start
+> node server.js
+
+Server chạy tại http://localhost:3000
+  WebSocket : ws://localhost:3000
+  POST      : http://localhost:3000/api/telemetry
+  GET       : http://localhost:3000/api/state

@@ -1,0 +1,16 @@
+{
+  "name": "tesla-web-dashboard",
+  "version": "1.0.0",
+  "description": "Màn hình hiển thị trạng thái xe kiểu Tesla (ACC, FCW, GPS) - phần WEB của đồ án",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "three": "^0.187.0",
+    "ws": "^8.23.0"
+  }
+}

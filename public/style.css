@@ -1,0 +1,122 @@
+/* =====================================================================
+   style.css - Giao diện tối kiểu Tesla
+   Bố cục: 2 cột (trái ~58% = 3D, phải ~42% = bản đồ), các khung bo góc
+   ===================================================================== */
+:root {
+  --bg: #0b0c0e;
+  --panel: #111316;
+  --text: #f2f4f7;
+  --muted: #8b929c;
+  --blue: #3ea6ff;     /* màu ACC */
+  --yellow: #ffc83d;
+  --red: #ff3b30;
+  --green: #30d98b;
+  --radius: 22px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  overflow: hidden;
+}
+
+/* ---------- Bố cục 2 cột ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+  gap: 12px;
+  height: 100vh;
+  padding: 12px;
+}
+.panel {
+  position: relative;
+  background: var(--panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid #1d2126;
+}
+#c3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#map { position: absolute; inset: 0; background: #0f1114; }
+
+/* Khi có cảnh báo va chạm: viền đỏ nhấp nháy quanh khung 3D */
+.view3d.fcw { animation: glow 0.5s steps(2) infinite; }
+@keyframes glow {
+  0%   { box-shadow: inset 0 0 0 3px var(--red), inset 0 0 70px rgba(255,59,48,.45); }
+  50%  { box-shadow: inset 0 0 0 3px transparent; }
+}
+
+/* ---------- HUD đè lên 3D ---------- */
+.hud { position: absolute; inset: 0; pointer-events: none; padding: 20px 24px; display: flex; flex-direction: column; justify-content: space-between; }
+.hud-top { display: flex; justify-content: space-between; align-items: flex-start; }
+
+.speed-block { min-width: 150px; }
+.speed { font-size: 96px; font-weight: 600; line-height: 0.95; letter-spacing: -2px; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+.speed-unit { color: var(--muted); font-size: 18px; margin-top: 2px; }
+
+.acc { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 4px 12px 4px 8px; border-radius: 999px; background: rgba(255,255,255,.07); color: var(--muted); font-size: 22px; font-weight: 600; }
+.acc.on { color: var(--blue); background: rgba(62,166,255,.15); }
+
+.gears { display: flex; gap: 14px; font-size: 22px; font-weight: 600; color: #4a5059; margin-top: 8px; }
+.gears span.on { color: var(--text); }
+
+.right-block { display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+.clock-row { display: flex; gap: 16px; font-size: 20px; color: var(--muted); }
+.clock-row #clock { color: var(--text); font-weight: 600; }
+
+/* Biển giới hạn tốc độ Việt Nam: tròn, viền đỏ, nền trắng, số đen */
+.limit-sign {
+  width: 78px; height: 78px; border-radius: 50%;
+  background: #fff; border: 8px solid #d9261c;
+  display: flex; align-items: center; justify-content: center;
+  color: #111; font-size: 30px; font-weight: 800;
+}
+.limit-sign.over { animation: blink 0.6s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+
+/* ---------- Banner cảnh báo ---------- */
+.banner {
+  position: absolute; left: 50%; top: 24%; transform: translateX(-50%);
+  padding: 12px 26px; border-radius: 14px; font-size: 24px; font-weight: 700; white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+.banner[hidden] { display: none; }
+.banner.fcw   { background: rgba(255,59,48,.92); color: #fff; animation: blink 0.4s steps(2) infinite; }
+.banner.brake { background: rgba(255,200,61,.92); color: #1a1400; }
+
+/* ---------- Phần dưới ---------- */
+.hud-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
+.lead-info, .fuel { background: rgba(10,12,14,.65); border-radius: 14px; padding: 10px 16px; }
+.lead-title, .fuel-head { color: var(--muted); font-size: 14px; }
+.lead-values { display: flex; gap: 18px; font-size: 20px; margin-top: 4px; }
+.lead-values b { font-size: 26px; }
+.lead-info.off .lead-values { opacity: .4; }
+
+.fuel { width: 250px; }
+.fuel-head { display: flex; justify-content: space-between; }
+.fuel-head b { color: var(--text); font-size: 16px; }
+.fuel-bar { height: 8px; border-radius: 4px; background: #2a2e34; margin-top: 8px; overflow: hidden; }
+.fuel-fill { height: 100%; width: 50%; background: var(--green); border-radius: 4px; transition: width .5s; }
+.fuel-fill.low { background: var(--yellow); }
+
+/* ---------- Nguồn dữ liệu + FPS (góc dưới giữa) ---------- */
+.status { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 14px; align-items: center; font-size: 13px; color: var(--muted); }
+.source { display: flex; align-items: center; gap: 6px; }
+.source i { width: 9px; height: 9px; border-radius: 50%; background: var(--yellow); }
+.source.device i { background: var(--green); }
+
+/* ---------- Leaflet: chỉnh cho hợp nền tối ---------- */
+.leaflet-container { background: #0f1114; font-family: inherit; }
+/* Biến tile OSM (sáng) thành nền tối: đảo màu + xoay sắc độ để đường vẫn đúng tông */
+.dark-tiles { filter: invert(1) hue-rotate(200deg) brightness(0.8) contrast(0.9) saturate(0.6); }
+.leaflet-control-attribution { background: rgba(0,0,0,.5) !important; color: #777 !important; font-size: 10px; }
+.leaflet-control-attribution a { color: #999 !important; }
+.car-marker svg { transition: transform .45s linear; filter: drop-shadow(0 0 6px rgba(62,166,255,.8)); }
+
+/* Màn hình hẹp: xếp dọc */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: 60fr 40fr; }
+  .speed { font-size: 64px; }
+}
