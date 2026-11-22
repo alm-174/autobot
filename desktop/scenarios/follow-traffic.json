@@ -1,0 +1,14 @@
+{
+  "name": "Bám xe trong giao thông",
+  "description": "Xe trước đổi tốc độ 40 → 70 → 20 → dừng 5 giây → 50 km/h để demo FOLLOW stop & go.",
+  "ego": { "lane": 1, "speed": 40, "mode": "FOLLOW", "setSpeed": 80, "timeGap": 1.8 },
+  "vehicles": [
+    { "id": "A", "lane": 1, "gap": 35, "speed": 40 }
+  ],
+  "events": [
+    { "at": 5, "vehicle": "A", "action": "setSpeed", "toSpeed": 70, "accel": 2 },
+    { "at": 12, "vehicle": "A", "action": "brake", "toSpeed": 20, "decel": 3 },
+    { "at": 18, "vehicle": "A", "action": "brake", "toSpeed": 0, "decel": 3 },
+    { "at": 25, "vehicle": "A", "action": "setSpeed", "toSpeed": 50, "accel": 2 }
+  ]
+}

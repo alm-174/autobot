@@ -1,0 +1,35 @@
+{
+  "name": "Xe chen làn rồi phanh",
+  "description": "Kịch bản tạo từ editor desktop.",
+  "ego": {
+    "lane": 1,
+    "speed": 60,
+    "mode": "FOLLOW",
+    "setSpeed": 80,
+    "timeGap": 1.8
+  },
+  "vehicles": [
+    {
+      "id": "V1",
+      "lane": 2,
+      "gap": 10,
+      "speed": 65
+    }
+  ],
+  "events": [
+    {
+      "at": 5,
+      "vehicle": "V1",
+      "action": "changeLane",
+      "toLane": 1,
+      "duration": 2
+    },
+    {
+      "at": 8,
+      "vehicle": "V1",
+      "action": "brake",
+      "toSpeed": 10,
+      "decel": 6
+    }
+  ]
+}

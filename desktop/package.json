@@ -1,0 +1,24 @@
+{
+  "name": "auto-tesla-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bộ điều phối Electron cho mô phỏng ACC Hardware-in-the-Loop",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "experiment": "node test/cut-in-experiment.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "leaflet": "^1.9.4",
+    "three": "^0.187.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "electron": "^33.3.1"
+  }
+}
+

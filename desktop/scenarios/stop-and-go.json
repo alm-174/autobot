@@ -1,0 +1,16 @@
+{
+  "name": "Giao thông dừng và chạy",
+  "description": "Xe trước giảm dần về 0 km/h, chờ rồi tăng tốc trở lại.",
+  "ego": { "lane": 1, "speed": 45, "mode": "ACC", "setSpeed": 80, "timeGap": 1.8 },
+  "vehicles": [
+    { "id": "A", "lane": 1, "gap": 35, "speed": 40 },
+    { "id": "B", "lane": 0, "gap": 20, "speed": 42 }
+  ],
+  "events": [
+    { "at": 4, "vehicle": "A", "action": "brake", "toSpeed": 0, "decel": 2.5 },
+    { "at": 12, "vehicle": "A", "action": "setSpeed", "toSpeed": 30, "accel": 1.5 },
+    { "at": 20, "vehicle": "A", "action": "brake", "toSpeed": 0, "decel": 2 },
+    { "at": 27, "vehicle": "A", "action": "setSpeed", "toSpeed": 45, "accel": 2 }
+  ]
+}
+

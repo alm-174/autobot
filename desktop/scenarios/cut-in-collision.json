@@ -1,0 +1,34 @@
+{
+  "name": "Chen làn quá gần (cố ý va chạm)",
+  "description": "Kịch bản cố ý va chạm để demo giới hạn hệ thống: xe B chen vào làn ở khoảng cách quá gần khi xe mình chạy 80 km/h. Cảm biến phát hiện cut-in và ECU phanh khẩn cấp nhưng không kịp; kết quả đúng là VA CHẠM.",
+  "ego": {
+    "lane": 1,
+    "speed": 80,
+    "mode": "ACC",
+    "setSpeed": 100,
+    "timeGap": 1.8
+  },
+  "vehicles": [
+    {
+      "id": "A",
+      "lane": 1,
+      "gap": 120,
+      "speed": 80
+    },
+    {
+      "id": "B",
+      "lane": 2,
+      "gap": 22,
+      "speed": 40
+    }
+  ],
+  "events": [
+    {
+      "at": 1,
+      "vehicle": "B",
+      "action": "changeLane",
+      "toLane": 1,
+      "duration": 1
+    }
+  ]
+}

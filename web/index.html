@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Tesla - Mô phỏng ACC</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main id="app">
+      <section class="drive-panel">
+        <div id="scene-container"></div>
+        <div id="hud-container"></div>
+        <div id="collision-banner" hidden>VA CHẠM</div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="map-panel">
+          <header>
+            <span>HÀ NỘI</span>
+            <strong>Tuyến đường mẫu</strong>
+          </header>
+          <div id="map-container"></div>
+        </section>
+
+        <section id="debug-panel" class="debug-panel" hidden>
+          <header>
+            <p class="eyebrow">CANVAS DEBUG</p>
+            <h2 id="scenario-name">Chưa nạp kịch bản</h2>
+            <p id="simulation-status">Đang chờ desktop...</p>
+          </header>
+          <canvas id="world-canvas" width="720" height="560"></canvas>
+
+          <h3>Cảm biến phía trước</h3>
+          <dl>
+            <div><dt>Thời gian</dt><dd id="sensor-time">–</dd></div>
+            <div><dt>Xe trước</dt><dd id="lead-id">–</dd></div>
+            <div><dt>Khoảng cách</dt><dd id="lead-distance">–</dd></div>
+            <div><dt>Tốc độ xe trước</dt><dd id="lead-speed">–</dd></div>
+            <div><dt>Tốc độ tương đối</dt><dd id="relative-speed">–</dd></div>
+            <div><dt>TTC</dt><dd id="ttc">–</dd></div>
+            <div><dt>Tốc độ xe mình</dt><dd id="ego-speed">–</dd></div>
+            <div><dt>Làn xe mình</dt><dd id="ego-lane">–</dd></div>
+          </dl>
+        </section>
+      </aside>
+    </main>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
+

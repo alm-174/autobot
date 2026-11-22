@@ -1,0 +1,28 @@
+{
+  "name": "Xe chen khi đang song song (điểm mù)",
+  "description": "xe chen khi đang song song – ngoài tầm cảm biến phía trước, va chạm là giới hạn của ACC",
+  "ego": {
+    "lane": 1,
+    "speed": 60,
+    "mode": "ACC",
+    "setSpeed": 80,
+    "timeGap": 1.8
+  },
+  "vehicles": [
+    {
+      "id": "V1",
+      "lane": 2,
+      "gap": 24,
+      "speed": 60
+    }
+  ],
+  "events": [
+    {
+      "at": 5,
+      "vehicle": "V1",
+      "action": "changeLane",
+      "toLane": 1,
+      "duration": 2
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Tesla - Bộ điều phối</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main id="app">
+      <header>
+        <p class="eyebrow">AUTO TESLA</p>
+        <h1>Bộ điều phối mô phỏng ACC</h1>
+      </header>
+
+      <section class="status-panel" aria-label="Trạng thái kết nối">
+        <article class="status-card">
+          <span id="server-light" class="status-light is-waiting"></span>
+          <div>
+            <strong id="server-status">Đang kết nối server</strong>
+            <small>WebSocket desktop UI</small>
+          </div>
+        </article>
+
+        <article class="status-card">
+          <span class="metric" id="web-client-count">0</span>
+          <div>
+            <strong>Web client</strong>
+            <small>Master và viewer đang kết nối</small>
+          </div>
+        </article>
+
+        <article class="status-card">
+          <span id="master-light" class="status-light is-offline"></span>
+          <div>
+            <strong id="master-status">Chưa có master</strong>
+            <small>Tab có ?role=master</small>
+          </div>
+        </article>
+      </section>
+
+      <section class="control-panel">
+        <div class="scenario-field">
+          <label for="scenario-select">Kịch bản</label>
+          <select id="scenario-select" disabled>
+            <option>Đang tải danh sách...</option>
+          </select>
+          <small id="scenario-description">Chọn kịch bản để gửi sang web.</small>
+          <small id="sim-state">Mô phỏng: chưa có thông tin</small>
+        </div>
+
+        <div class="sim-buttons" aria-label="Điều khiển mô phỏng">
+          <button type="button" data-action="play">Play</button>
+          <button type="button" data-action="pause">Pause</button>
+          <button type="button" data-action="reset">Reset</button>
+        </div>
+      </section>
+
+      <section class="ecu-panel">
+        <header class="ecu-header">
+          <div>
+            <p class="eyebrow">ECU GIẢ LẬP</p>
+            <h2>Adaptive Cruise Control</h2>
+          </div>
+
+          <div class="ecu-switches">
+            <label class="mode-switch">
+              <span>ACC</span>
+              <input id="mode-toggle" type="checkbox" role="switch">
+              <i></i>
+              <strong>FOLLOW</strong>
+            </label>
+            <label class="acc-switch">
+              <input id="acc-toggle" type="checkbox" checked>
+              <span>ACC ON</span>
+            </label>
+          </div>
+        </header>
+
+        <label class="speed-setting" for="set-speed-range">
+          <span>Tốc độ cài đặt</span>
+          <strong><span id="set-speed-value">80</span> km/h</strong>
+          <input id="set-speed-range" type="range" min="30" max="120" step="1" value="80">
+        </label>
+
+        <fieldset class="time-gap-setting">
+          <legend>Khoảng cách bám</legend>
+          <label><input type="radio" name="time-gap" value="1.2"><span>▮ Gần · 1.2 s</span></label>
+          <label><input type="radio" name="time-gap" value="1.8" checked><span>▮▮ Vừa · 1.8 s</span></label>
+          <label><input type="radio" name="time-gap" value="2.5"><span>▮▮▮ Xa · 2.5 s</span></label>
+        </fieldset>
+
+        <div class="telemetry-grid">
+          <article><span>Tốc độ xe mình</span><strong id="ego-speed-value">–</strong><small>km/h</small></article>
+          <article><span>Khoảng cách</span><strong id="distance-value">–</strong><small>m</small></article>
+          <article><span>TTC</span><strong id="ttc-value">–</strong><small>s</small></article>
+          <article><span>Cảnh báo</span><strong id="warning-value">NONE</strong><small id="braking-value">Không phanh</small></article>
+          <article><span>Trạng thái ECU</span><strong id="ecu-state-value">CRUISE</strong><small id="drive-mode-value">ACC</small></article>
+        </div>
+
+        <div class="chart-wrap">
+          <canvas id="ecu-chart" width="1000" height="190"></canvas>
+          <div class="chart-legend">
+            <span class="speed-line">Tốc độ</span>
+            <span class="distance-line">Khoảng cách</span>
+            <span class="ttc-line">TTC (tối đa 30 s)</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="editor-panel">
+        <header class="editor-header">
+          <div>
+            <p class="eyebrow">SCENARIO EDITOR</p>
+            <h2>Trình soạn kéo thả</h2>
+          </div>
+          <div class="editor-actions">
+            <button id="scenario-new" type="button">Mới</button>
+            <button id="scenario-open" type="button">Mở</button>
+            <button id="scenario-save" type="button">Lưu</button>
+            <button id="scenario-send-play" class="primary" type="button">Gửi sang web và Play</button>
+          </div>
+        </header>
+
+        <p id="editor-message" class="editor-message">Sẵn sàng tạo kịch bản.</p>
+
+        <div class="scenario-meta">
+          <label>Tên<input id="editor-name" type="text"></label>
+          <label>Mô tả<input id="editor-description" type="text"></label>
+          <label>Làn xe mình<input id="editor-ego-lane" type="number" min="0" max="2" step="1"></label>
+          <label>Tốc độ ban đầu<input id="editor-ego-speed" type="number" min="0" step="1"></label>
+          <label>Mode khởi đầu<select id="editor-ego-mode"><option value="ACC">ACC</option><option value="FOLLOW">FOLLOW</option></select></label>
+          <label>setSpeed (km/h)<input id="editor-set-speed" type="number" min="0" max="120" step="1"></label>
+          <label>timeGap<select id="editor-time-gap"><option value="1.2">Gần · 1.2 s</option><option value="1.8">Vừa · 1.8 s</option><option value="2.5">Xa · 2.5 s</option></select></label>
+        </div>
+
+        <div class="editor-workspace">
+          <div>
+            <div class="vehicle-toolbar">
+              <button id="vehicle-tool" type="button" draggable="true">＋ Xe mới</button>
+              <span>Kéo vào canvas hoặc bấm để thêm</span>
+            </div>
+            <canvas id="scenario-canvas" width="720" height="520"></canvas>
+          </div>
+
+          <aside class="vehicle-form">
+            <h3>Xe được chọn</h3>
+            <p id="vehicle-empty">Click một xe trên canvas để sửa.</p>
+            <div id="vehicle-fields" hidden>
+              <label>ID<input id="vehicle-id" type="text" readonly></label>
+              <label>Làn<input id="vehicle-lane" type="number" min="0" max="2" step="1"></label>
+              <label>Khoảng cách (m)<input id="vehicle-gap" type="number" min="-50" max="150" step="1"></label>
+              <label>Tốc độ (km/h)<input id="vehicle-speed" type="number" min="0" step="1"></label>
+              <button id="vehicle-update" type="button">Cập nhật xe</button>
+              <button id="vehicle-delete" class="danger" type="button">Xóa xe</button>
+            </div>
+          </aside>
+        </div>
+
+        <section class="timeline-panel">
+          <h3>Timeline sự kiện</h3>
+          <div class="event-form">
+            <label>Xe<select id="event-vehicle"></select></label>
+            <label>Action<select id="event-action"><option value="changeLane">changeLane</option><option value="brake">brake</option><option value="setSpeed">setSpeed</option></select></label>
+            <label>Thời điểm (s)<input id="event-at" type="number" min="0" step="0.1" value="5"></label>
+            <label><span id="event-value-label">Làn đích</span><input id="event-value" type="number" min="0" value="1"></label>
+            <label><span id="event-rate-label">Duration (s)</span><input id="event-rate" type="number" min="0.1" step="0.1" value="2"></label>
+            <div class="event-buttons">
+              <button id="event-add" type="button">Thêm</button>
+              <button id="event-update" type="button">Cập nhật</button>
+              <button id="event-delete" class="danger" type="button">Xóa</button>
+            </div>
+          </div>
+          <div id="timeline"></div>
+          <small>Kéo khối sự kiện trên timeline để đổi thời điểm.</small>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="ui.js"></script>
+  </body>
+</html>
+

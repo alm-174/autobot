@@ -1,0 +1,13 @@
+{
+  "name": "Xe trước rời làn",
+  "description": "Xe trước chuyển sang làn trái, giải phóng làn của xe mình.",
+  "ego": { "lane": 1, "speed": 60, "mode": "ACC", "setSpeed": 80, "timeGap": 1.8 },
+  "vehicles": [
+    { "id": "A", "lane": 1, "gap": 38, "speed": 48 },
+    { "id": "B", "lane": 2, "gap": 80, "speed": 62 }
+  ],
+  "events": [
+    { "at": 6, "vehicle": "A", "action": "changeLane", "toLane": 0, "duration": 2.5 },
+    { "at": 10, "vehicle": "A", "action": "setSpeed", "toSpeed": 65, "accel": 2 }
+  ]
+}

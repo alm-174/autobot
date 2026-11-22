@@ -1,0 +1,13 @@
+{
+  "name": "Xe trước phanh gấp",
+  "description": "Xe trước đang chạy chậm hơn và bất ngờ phanh mạnh.",
+  "ego": { "lane": 1, "speed": 70, "mode": "ACC", "setSpeed": 80, "timeGap": 1.8 },
+  "vehicles": [
+    { "id": "A", "lane": 1, "gap": 55, "speed": 65 }
+  ],
+  "events": [
+    { "at": 5, "vehicle": "A", "action": "brake", "toSpeed": 10, "decel": 7 },
+    { "at": 14, "vehicle": "A", "action": "setSpeed", "toSpeed": 50, "accel": 2 }
+  ]
+}
+

@@ -1,0 +1,48 @@
+{
+  "name": "Xe chen làn rồi phanh gấp",
+  "description": "Xe ở làn phải chen vào trước xe mình rồi giảm tốc mạnh. ECU phanh kịp, khoảng cách nhỏ nhất khoảng 7 m.",
+  "ego": {
+    "lane": 1,
+    "speed": 60,
+    "mode": "ACC",
+    "setSpeed": 80,
+    "timeGap": 1.8
+  },
+  "vehicles": [
+    {
+      "id": "A",
+      "lane": 1,
+      "gap": 75,
+      "speed": 58
+    },
+    {
+      "id": "B",
+      "lane": 2,
+      "gap": 24,
+      "speed": 65
+    }
+  ],
+  "events": [
+    {
+      "at": 5,
+      "vehicle": "B",
+      "action": "changeLane",
+      "toLane": 1,
+      "duration": 2
+    },
+    {
+      "at": 9,
+      "vehicle": "B",
+      "action": "brake",
+      "toSpeed": 10,
+      "decel": 6
+    },
+    {
+      "at": 14,
+      "vehicle": "B",
+      "action": "setSpeed",
+      "toSpeed": 50,
+      "accel": 2
+    }
+  ]
+}
