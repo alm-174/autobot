@@ -7,6 +7,10 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
     <link rel="stylesheet" href="style.css">
+    <!-- importmap: scene3d.js viết import "three" và "three/addons/..." mà không cần build tool -->
+    <script type="importmap">
+      { "imports": { "three": "/vendor/three/three.module.js", "three/addons/": "/vendor/three-addons/" } }
+    </script>
   </head>
   <body>
     <main id="app">

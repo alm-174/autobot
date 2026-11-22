@@ -182,7 +182,8 @@ export function startApp() {
       }
     }
 
-    if (now - previousFrame >= FRAME_INTERVAL_MS) {
+    // Trừ 2 ms: rAF 60 Hz cách nhau 16,7 ms nên 2 nhịp hay lệch xuống 33,3 − ε và bị bỏ qua, FPS tụt còn ~22 thay vì 30.
+    if (now - previousFrame >= FRAME_INTERVAL_MS - 2) {
       const worldState = world.getState();
       scene3d.update(worldState, latestSensor, latestEgo);
       scene3d.render();

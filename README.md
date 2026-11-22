@@ -48,6 +48,22 @@ Bố cục: thanh công cụ trên (Play/Pause/Reset, tên kịch bản, trạng
 
 Thông báo dùng toast và hộp thoại trong giao diện (không dùng alert/confirm). Màu, khoảng cách (lưới 8 px), bo góc nằm ở design tokens đầu `desktop/ui/style.css`; canvas editor và biểu đồ đọc cùng các token đó. Font Inter (`@fontsource/inter`) và icon Lucide (sprite SVG inline trong `desktop/ui/index.html`, nguồn `lucide-static`) đều dùng file local, không cần mạng. Ảnh trước/sau: `docs/ui-screenshots/`.
 
+## Cảnh 3D (web)
+
+Phong cách màn hình Tesla: tối giản, xe low-poly, đèn phanh phát sáng, vạch làn phát sáng nhẹ, mặt đường nhựa mờ, trời gradient và sương mù cùng màu chân trời. Xe mình màu trắng, xe khác xám nhạt; thân xe chúi mũi khi phanh, ngửa khi tăng tốc, bánh xe quay theo tốc độ, xe nghiêng nhẹ khi chuyển làn, camera theo sau có làm mượt.
+
+- **Chất lượng:** mặc định tự thích ứng: FPS trung bình 3 giây gần nhất < 22 thì giảm pixel ratio từ 1 xuống 0,75 (bộ đếm FPS hiện "· 0.75×"). Ép bằng URL: `?quality=high` (luôn pixel ratio 1) hoặc `?quality=low` (0,75 và tắt quầng sáng đèn phanh).
+- **Ràng buộc:** không `shadowMap`, không post-processing, không `MeshPhysicalMaterial` (có test kiểm tra mã nguồn). Số liệu FPS trước/sau: [docs/3d-report.md](docs/3d-report.md).
+
+### Nguồn tài sản 3D và giấy phép
+
+| Tài sản | Nguồn | Giấy phép |
+|---|---|---|
+| `web/assets/car/sedan.glb` + `Textures/colormap.png` (2 032 tam giác) | **Kenney Car Kit 3.1**, tác giả Kenney (<https://www.kenney.nl/assets/car-kit>, bản tải từ <https://opengameart.org/content/car-kit>) | **CC0 1.0** (public domain), xem `web/assets/car/License-Kenney-CC0.txt`. Ghi nguồn không bắt buộc nhưng có ghi. |
+| `web/assets/matcap-soft.png` (matcap 128×128) | tạo bằng `web/assets/make-matcap.mjs` của dự án | tự do sử dụng (CC0) |
+
+Xe dùng chung một geometry cho mọi chiếc; màu sơn (trắng/xám) được đổi từ palette gốc khi chạy. `GLTFLoader` lấy từ `three/examples/jsm` (server phục vụ ở `/vendor/three-addons`, importmap trong `web/index.html`).
+
 ## Kịch bản mẫu (`desktop/scenarios/`)
 
 | File | Mô tả | Kết quả mong đợi |

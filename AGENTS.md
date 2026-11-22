@@ -64,7 +64,7 @@ Web master: <http://localhost:3000/?role=master>
 6. `acc-fallback.js` nhận input đúng dạng message WebSocket `sensor` và trả output đúng dạng payload MQTT `<prefix>/control`. Nhờ vậy, khi thay ECU giả lập bằng ESP32 thì không phải sửa web.
 7. Không implement MQTT/Wokwi và không import `mqtt.js` vào server/hub cho đến giai đoạn sau.
 8. Khi sửa message, phải cập nhật đồng thời `shared/protocol.js` và `docs/api.md`.
-9. Tối ưu cho máy không có GPU: `antialias: false`, pixel ratio bằng 1, không shadow, chỉ dùng `MeshBasicMaterial`/`MeshLambertMaterial`, giới hạn 30 FPS.
+9. Tối ưu cho máy không có GPU: `antialias: false`, không `shadowMap`, không post-processing (bloom/SSAO), không `MeshPhysicalMaterial`; chỉ dùng `MeshBasicMaterial`/`MeshMatcapMaterial`/`SpriteMaterial`; giới hạn 30 FPS và pixel ratio mặc định 1, tự giảm xuống 0,75 khi FPS trung bình 3 giây gần nhất < 22 (`?quality=high|low` để ép). Phải giữ ≥ 20 FPS khi Chrome chạy `--disable-gpu`.
 10. Chỉ tab có `?role=master` được mô phỏng và gửi sensor; các tab khác chỉ xem.
 11. Đơn vị chuẩn: tốc độ km/h, khoảng cách m, thời gian s, gia tốc m/s².
 12. Kích thước xe chuẩn là `CAR_LENGTH = 4.5 m`, `CAR_WIDTH = 1.8 m`; `leadDistance` luôn đo từ đầu xe ego đến đuôi xe trước.

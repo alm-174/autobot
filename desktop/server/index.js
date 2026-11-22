@@ -23,6 +23,8 @@ export function createServer() {
 
   expressApp.use("/shared", express.static(sharedDirectory));
   expressApp.use("/vendor/three", express.static(path.join(nodeModulesDirectory, "three", "build")));
+  // Thư viện bổ sung của three (GLTFLoader...) cho importmap "three/addons/"
+  expressApp.use("/vendor/three-addons", express.static(path.join(nodeModulesDirectory, "three", "examples", "jsm")));
   expressApp.use("/vendor/leaflet", express.static(path.join(nodeModulesDirectory, "leaflet", "dist")));
   expressApp.use(express.static(webDirectory));
 
