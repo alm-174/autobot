@@ -4,67 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auto Tesla - Bộ điều phối</title>
+    <!-- Font Inter đóng gói local qua npm (@fontsource/inter), không dùng CDN. Subset latin + vietnamese để đủ dấu tiếng Việt. -->
+    <link rel="stylesheet" href="../node_modules/@fontsource/inter/latin-400.css">
+    <link rel="stylesheet" href="../node_modules/@fontsource/inter/latin-500.css">
+    <link rel="stylesheet" href="../node_modules/@fontsource/inter/latin-600.css">
+    <link rel="stylesheet" href="../node_modules/@fontsource/inter/latin-700.css">
+    <link rel="stylesheet" href="../node_modules/@fontsource/inter/vietnamese-400.css">
+    <link rel="stylesheet" href="../node_modules/@fontsource/inter/vietnamese-500.css">
+    <link rel="stylesheet" href="../node_modules/@fontsource/inter/vietnamese-600.css">
+    <link rel="stylesheet" href="../node_modules/@fontsource/inter/vietnamese-700.css">
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <main id="app">
-      <header>
-        <p class="eyebrow">AUTO TESLA</p>
-        <h1>Bộ điều phối mô phỏng ACC</h1>
+    <!-- Icon Lucide (ISC, lucide-static) dạng sprite inline: dùng <svg class="icon"><use href="#i-play"/></svg> -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="3" width="5" height="18" rx="1" /><rect x="5" y="3" width="5" height="18" rx="1" /></symbol>
+    <symbol id="i-rotate-ccw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2" /><rect width="20" height="8" x="2" y="14" rx="2" ry="2" /><line x1="6" x2="6.01" y1="6" y2="6" /><line x1="6" x2="6.01" y1="18" y2="18" /></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2" /><line x1="8" x2="16" y1="21" y2="21" /><line x1="12" x2="12" y1="17" y2="21" /></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v2" /><path d="M12 2v2" /><path d="M17 20v2" /><path d="M17 2v2" /><path d="M2 12h2" /><path d="M2 17h2" /><path d="M2 7h2" /><path d="M20 12h2" /><path d="M20 17h2" /><path d="M20 7h2" /><path d="M7 20v2" /><path d="M7 2v2" /><rect x="4" y="4" width="16" height="16" rx="2" /><rect x="8" y="8" width="8" height="8" rx="1" /></symbol>
+    <symbol id="i-file-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M9 15h6" /><path d="M12 18v-6" /></symbol>
+    <symbol id="i-folder-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" /></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" /><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" /><path d="M7 3v4a1 1 0 0 0 1 1h7" /></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></symbol>
+    <symbol id="i-trash-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6" /><path d="M14 11v6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></symbol>
+    <symbol id="i-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></symbol>
+    <symbol id="i-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="m16 9-5.5 5.5L8 12" /></symbol>
+    <symbol id="i-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol>
+    <symbol id="i-arrow-left-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4" /><path d="M4 7h16" /><path d="m16 21 4-4-4-4" /><path d="M20 17H4" /></symbol>
+    <symbol id="i-octagon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 9-6 6" /><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z" /><path d="m9 9 6 6" /></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4" /><path d="M3.34 19a10 10 0 1 1 17.32 0" /></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h.01" /><path d="M12 12h.01" /><path d="M14 8h.01" /><path d="M16 12h.01" /><path d="M18 8h.01" /><path d="M6 8h.01" /><path d="M7 16h10" /><path d="M8 12h.01" /><rect width="20" height="16" x="2" y="4" rx="2" /></symbol>
+    </svg>
+
+    <div id="app">
+      <!-- ============ Thanh công cụ trên ============ -->
+      <header class="toolbar">
+        <div class="brand"><svg class="icon" aria-hidden="true"><use href="#i-car"/></svg><span>Auto Tesla</span></div>
+
+        <div class="toolbar-title">
+          <strong id="toolbar-scenario-name">Chưa chọn kịch bản</strong>
+          <small id="scenario-description">Chọn kịch bản trong danh sách bên trái để gửi sang web.</small>
+        </div>
+
+        <div class="sim-buttons" role="group" aria-label="Điều khiển mô phỏng">
+          <button type="button" data-action="play" class="btn btn-play" title="Chạy mô phỏng (Space)">
+            <svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span>Play</span>
+          </button>
+          <button type="button" data-action="pause" class="btn" title="Tạm dừng (Space)">
+            <svg class="icon" aria-hidden="true"><use href="#i-pause"/></svg><span>Pause</span>
+          </button>
+          <button type="button" data-action="reset" class="btn" title="Về đầu kịch bản">
+            <svg class="icon" aria-hidden="true"><use href="#i-rotate-ccw"/></svg><span>Reset</span>
+          </button>
+          <kbd class="kbd-hint" title="Phím tắt">Space</kbd>
+        </div>
+
+        <div class="chips" aria-label="Trạng thái kết nối">
+          <span class="chip" title="Kết nối WebSocket của giao diện desktop tới server">
+            <span id="server-light" class="status-light is-waiting"></span>
+            <svg class="icon" aria-hidden="true"><use href="#i-server"/></svg>
+            <span id="server-status">Đang kết nối server</span>
+          </span>
+          <span class="chip" title="Tab web mở bằng ?role=master mô phỏng thế giới">
+            <span id="master-light" class="status-light is-offline"></span>
+            <svg class="icon" aria-hidden="true"><use href="#i-monitor"/></svg>
+            <span id="master-status">Chưa có master</span>
+            <span class="chip-count" title="Số web client (master + viewer)"><span id="web-client-count">0</span></span>
+          </span>
+          <span class="chip" id="ecu-chip" data-state="" title="Chế độ và trạng thái ECU giả lập">
+            <svg class="icon" aria-hidden="true"><use href="#i-cpu"/></svg>
+            <span id="ecu-chip-text">ECU: chưa có dữ liệu</span>
+          </span>
+        </div>
       </header>
 
-      <section class="status-panel" aria-label="Trạng thái kết nối">
-        <article class="status-card">
-          <span id="server-light" class="status-light is-waiting"></span>
-          <div>
-            <strong id="server-status">Đang kết nối server</strong>
-            <small>WebSocket desktop UI</small>
-          </div>
-        </article>
-
-        <article class="status-card">
-          <span class="metric" id="web-client-count">0</span>
-          <div>
-            <strong>Web client</strong>
-            <small>Master và viewer đang kết nối</small>
-          </div>
-        </article>
-
-        <article class="status-card">
-          <span id="master-light" class="status-light is-offline"></span>
-          <div>
-            <strong id="master-status">Chưa có master</strong>
-            <small>Tab có ?role=master</small>
-          </div>
-        </article>
-      </section>
-
-      <section class="control-panel">
-        <div class="scenario-field">
-          <label for="scenario-select">Kịch bản</label>
-          <select id="scenario-select" disabled>
-            <option>Đang tải danh sách...</option>
-          </select>
-          <small id="scenario-description">Chọn kịch bản để gửi sang web.</small>
+      <!-- ============ Trái: danh sách kịch bản ============ -->
+      <aside class="sidebar" aria-label="Danh sách kịch bản">
+        <div class="panel-head">
+          <h2>Kịch bản</h2>
           <small id="sim-state">Mô phỏng: chưa có thông tin</small>
         </div>
+        <div id="scenario-list" class="scenario-list" role="listbox" aria-label="Kịch bản mẫu"></div>
+        <!-- Giữ <select> làm nguồn dữ liệu (logic cũ không đổi), danh sách bên trên chỉ là cách hiển thị -->
+        <select id="scenario-select" hidden disabled>
+          <option>Đang tải danh sách...</option>
+        </select>
+      </aside>
 
-        <div class="sim-buttons" aria-label="Điều khiển mô phỏng">
-          <button type="button" data-action="play">Play</button>
-          <button type="button" data-action="pause">Pause</button>
-          <button type="button" data-action="reset">Reset</button>
-        </div>
-      </section>
+      <!-- ============ Giữa: trình soạn ============ -->
+      <main class="workspace">
+        <section class="card editor-card">
+          <header class="editor-toolbar">
+            <h2>Trình soạn kịch bản</h2>
+            <div class="editor-actions">
+              <button id="scenario-new" type="button" class="btn" title="Tạo kịch bản mới">
+                <svg class="icon" aria-hidden="true"><use href="#i-file-plus"/></svg><span>Mới</span>
+              </button>
+              <button id="scenario-open" type="button" class="btn" title="Mở file kịch bản (Ctrl+O)">
+                <svg class="icon" aria-hidden="true"><use href="#i-folder-open"/></svg><span>Mở</span><kbd>Ctrl+O</kbd>
+              </button>
+              <button id="scenario-save" type="button" class="btn" title="Lưu file kịch bản (Ctrl+S)">
+                <svg class="icon" aria-hidden="true"><use href="#i-save"/></svg><span>Lưu</span><kbd>Ctrl+S</kbd>
+              </button>
+              <button id="scenario-send-play" type="button" class="btn btn-primary" title="Gửi kịch bản sang web và bắt đầu chạy">
+                <svg class="icon" aria-hidden="true"><use href="#i-send"/></svg><span>Gửi sang web và Play</span>
+              </button>
+            </div>
+          </header>
 
-      <section class="ecu-panel">
-        <header class="ecu-header">
-          <div>
-            <p class="eyebrow">ECU GIẢ LẬP</p>
-            <h2>Adaptive Cruise Control</h2>
+          <div class="scenario-meta">
+            <label class="field field-wide">Tên<input id="editor-name" type="text"></label>
+            <label class="field field-wide">Mô tả<input id="editor-description" type="text"></label>
+            <label class="field">Làn xe mình<input id="editor-ego-lane" type="number" min="0" max="2" step="1"></label>
+            <label class="field">Tốc độ ban đầu<input id="editor-ego-speed" type="number" min="0" step="1"></label>
+            <label class="field">Mode khởi đầu<select id="editor-ego-mode"><option value="ACC">ACC</option><option value="FOLLOW">FOLLOW</option></select></label>
+            <label class="field">setSpeed (km/h)<input id="editor-set-speed" type="number" min="0" max="120" step="1"></label>
+            <label class="field">timeGap<select id="editor-time-gap"><option value="1.2">Gần · 1.2 s</option><option value="1.8">Vừa · 1.8 s</option><option value="2.5">Xa · 2.5 s</option></select></label>
           </div>
 
+          <div class="vehicle-toolbar">
+            <button id="vehicle-tool" type="button" class="btn" draggable="true" title="Bấm để thêm xe, hoặc kéo vào canvas">
+              <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg><span>Xe mới</span>
+            </button>
+            <span class="hint">Kéo xe để đổi làn và khoảng cách (giữ Shift: bước 5 m). Xe mình cố định ở 0 m.</span>
+          </div>
+
+          <div class="canvas-wrap">
+            <canvas id="scenario-canvas" width="640" height="520"></canvas>
+            <div id="canvas-empty" class="empty-state canvas-empty" hidden>
+              <svg class="icon icon-lg" aria-hidden="true"><use href="#i-car"/></svg>
+              <strong>Chưa có xe nào</strong>
+              <span>Kéo nút "Xe mới" vào làn đường hoặc bấm để thêm xe đầu tiên.</span>
+            </div>
+          </div>
+
+          <p id="editor-message" class="editor-message" role="status">Sẵn sàng tạo kịch bản.</p>
+        </section>
+      </main>
+
+      <!-- ============ Phải: thuộc tính + thông số trực tiếp + ECU ============ -->
+      <aside class="inspector">
+        <section class="card vehicle-form">
+          <div class="card-head"><h3>Xe đang chọn</h3></div>
+          <div id="vehicle-empty" class="empty-state compact">
+            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-car"/></svg>
+            <span>Chọn một xe trên canvas để sửa làn, khoảng cách và tốc độ.</span>
+          </div>
+          <div id="vehicle-fields" hidden>
+            <div class="form-grid">
+              <label class="field">ID<input id="vehicle-id" type="text" readonly></label>
+              <label class="field">Làn<input id="vehicle-lane" type="number" min="0" max="2" step="1"></label>
+              <label class="field">Khoảng cách (m)<input id="vehicle-gap" type="number" min="-50" max="150" step="1"></label>
+              <label class="field">Tốc độ (km/h)<input id="vehicle-speed" type="number" min="0" step="1"></label>
+            </div>
+            <div class="button-row">
+              <button id="vehicle-update" type="button" class="btn btn-primary" title="Áp dụng thay đổi cho xe">
+                <svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Cập nhật xe</span>
+              </button>
+              <button id="vehicle-delete" type="button" class="btn btn-danger" title="Xoá xe đang chọn (Delete)">
+                <svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg><span>Xoá</span><kbd>Del</kbd>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card live-card">
+          <div class="card-head"><h3>Thông số trực tiếp</h3></div>
+          <div class="telemetry-grid">
+            <article><span>Tốc độ</span><strong id="ego-speed-value">–</strong><small>km/h</small></article>
+            <article><span>Khoảng cách</span><strong id="distance-value">–</strong><small>m</small></article>
+            <article><span>TTC</span><strong id="ttc-value">–</strong><small>s</small></article>
+            <article><span>Cảnh báo</span><strong id="warning-value">NONE</strong><small id="braking-value">Không phanh</small></article>
+            <article class="telemetry-wide"><span>Trạng thái ECU</span><strong id="ecu-state-value">CRUISE</strong><small id="drive-mode-value">ACC</small></article>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="ecu-chart" width="600" height="150"></canvas>
+            <div class="chart-legend">
+              <span class="speed-line">Tốc độ</span>
+              <span class="distance-line">Khoảng cách</span>
+              <span class="ttc-line">TTC</span>
+              <span class="chart-span">30 s gần nhất</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card ecu-panel">
+          <div class="card-head"><h3>ECU giả lập</h3></div>
           <div class="ecu-switches">
-            <label class="mode-switch">
+            <label class="mode-switch" title="ACC giữ tốc độ cài đặt; FOLLOW bám theo xe trước">
               <span>ACC</span>
               <input id="mode-toggle" type="checkbox" role="switch">
               <i></i>
@@ -75,108 +209,57 @@
               <span>ACC ON</span>
             </label>
           </div>
-        </header>
 
-        <label class="speed-setting" for="set-speed-range">
-          <span>Tốc độ cài đặt</span>
-          <strong><span id="set-speed-value">80</span> km/h</strong>
-          <input id="set-speed-range" type="range" min="30" max="120" step="1" value="80">
-        </label>
+          <label class="speed-setting" for="set-speed-range">
+            <span>Tốc độ cài đặt</span>
+            <strong><span id="set-speed-value">80</span> km/h</strong>
+            <input id="set-speed-range" type="range" min="30" max="120" step="1" value="80">
+          </label>
 
-        <fieldset class="time-gap-setting">
-          <legend>Khoảng cách bám</legend>
-          <label><input type="radio" name="time-gap" value="1.2"><span>▮ Gần · 1.2 s</span></label>
-          <label><input type="radio" name="time-gap" value="1.8" checked><span>▮▮ Vừa · 1.8 s</span></label>
-          <label><input type="radio" name="time-gap" value="2.5"><span>▮▮▮ Xa · 2.5 s</span></label>
-        </fieldset>
+          <fieldset class="time-gap-setting">
+            <legend>Khoảng cách bám</legend>
+            <label><input type="radio" name="time-gap" value="1.2"><span>Gần · 1.2 s</span></label>
+            <label><input type="radio" name="time-gap" value="1.8" checked><span>Vừa · 1.8 s</span></label>
+            <label><input type="radio" name="time-gap" value="2.5"><span>Xa · 2.5 s</span></label>
+          </fieldset>
+        </section>
+      </aside>
 
-        <div class="telemetry-grid">
-          <article><span>Tốc độ xe mình</span><strong id="ego-speed-value">–</strong><small>km/h</small></article>
-          <article><span>Khoảng cách</span><strong id="distance-value">–</strong><small>m</small></article>
-          <article><span>TTC</span><strong id="ttc-value">–</strong><small>s</small></article>
-          <article><span>Cảnh báo</span><strong id="warning-value">NONE</strong><small id="braking-value">Không phanh</small></article>
-          <article><span>Trạng thái ECU</span><strong id="ecu-state-value">CRUISE</strong><small id="drive-mode-value">ACC</small></article>
-        </div>
-
-        <div class="chart-wrap">
-          <canvas id="ecu-chart" width="1000" height="190"></canvas>
-          <div class="chart-legend">
-            <span class="speed-line">Tốc độ</span>
-            <span class="distance-line">Khoảng cách</span>
-            <span class="ttc-line">TTC (tối đa 30 s)</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="editor-panel">
-        <header class="editor-header">
-          <div>
-            <p class="eyebrow">SCENARIO EDITOR</p>
-            <h2>Trình soạn kéo thả</h2>
-          </div>
-          <div class="editor-actions">
-            <button id="scenario-new" type="button">Mới</button>
-            <button id="scenario-open" type="button">Mở</button>
-            <button id="scenario-save" type="button">Lưu</button>
-            <button id="scenario-send-play" class="primary" type="button">Gửi sang web và Play</button>
-          </div>
-        </header>
-
-        <p id="editor-message" class="editor-message">Sẵn sàng tạo kịch bản.</p>
-
-        <div class="scenario-meta">
-          <label>Tên<input id="editor-name" type="text"></label>
-          <label>Mô tả<input id="editor-description" type="text"></label>
-          <label>Làn xe mình<input id="editor-ego-lane" type="number" min="0" max="2" step="1"></label>
-          <label>Tốc độ ban đầu<input id="editor-ego-speed" type="number" min="0" step="1"></label>
-          <label>Mode khởi đầu<select id="editor-ego-mode"><option value="ACC">ACC</option><option value="FOLLOW">FOLLOW</option></select></label>
-          <label>setSpeed (km/h)<input id="editor-set-speed" type="number" min="0" max="120" step="1"></label>
-          <label>timeGap<select id="editor-time-gap"><option value="1.2">Gần · 1.2 s</option><option value="1.8">Vừa · 1.8 s</option><option value="2.5">Xa · 2.5 s</option></select></label>
-        </div>
-
-        <div class="editor-workspace">
-          <div>
-            <div class="vehicle-toolbar">
-              <button id="vehicle-tool" type="button" draggable="true">＋ Xe mới</button>
-              <span>Kéo vào canvas hoặc bấm để thêm</span>
-            </div>
-            <canvas id="scenario-canvas" width="720" height="520"></canvas>
-          </div>
-
-          <aside class="vehicle-form">
-            <h3>Xe được chọn</h3>
-            <p id="vehicle-empty">Click một xe trên canvas để sửa.</p>
-            <div id="vehicle-fields" hidden>
-              <label>ID<input id="vehicle-id" type="text" readonly></label>
-              <label>Làn<input id="vehicle-lane" type="number" min="0" max="2" step="1"></label>
-              <label>Khoảng cách (m)<input id="vehicle-gap" type="number" min="-50" max="150" step="1"></label>
-              <label>Tốc độ (km/h)<input id="vehicle-speed" type="number" min="0" step="1"></label>
-              <button id="vehicle-update" type="button">Cập nhật xe</button>
-              <button id="vehicle-delete" class="danger" type="button">Xóa xe</button>
-            </div>
-          </aside>
-        </div>
-
-        <section class="timeline-panel">
+      <!-- ============ Dưới: timeline ============ -->
+      <section class="timeline-panel card">
+        <div class="timeline-head">
           <h3>Timeline sự kiện</h3>
           <div class="event-form">
-            <label>Xe<select id="event-vehicle"></select></label>
-            <label>Action<select id="event-action"><option value="changeLane">changeLane</option><option value="brake">brake</option><option value="setSpeed">setSpeed</option></select></label>
-            <label>Thời điểm (s)<input id="event-at" type="number" min="0" step="0.1" value="5"></label>
-            <label><span id="event-value-label">Làn đích</span><input id="event-value" type="number" min="0" value="1"></label>
-            <label><span id="event-rate-label">Duration (s)</span><input id="event-rate" type="number" min="0.1" step="0.1" value="2"></label>
+            <label class="field">Xe<select id="event-vehicle"></select></label>
+            <label class="field">Hành động<select id="event-action"><option value="changeLane">changeLane</option><option value="brake">brake</option><option value="setSpeed">setSpeed</option></select></label>
+            <label class="field">Thời điểm (s)<input id="event-at" type="number" min="0" step="0.1" value="5"></label>
+            <label class="field"><span id="event-value-label">Làn đích</span><input id="event-value" type="number" min="0" value="1"></label>
+            <label class="field"><span id="event-rate-label">Duration (s)</span><input id="event-rate" type="number" min="0.1" step="0.1" value="2"></label>
             <div class="event-buttons">
-              <button id="event-add" type="button">Thêm</button>
-              <button id="event-update" type="button">Cập nhật</button>
-              <button id="event-delete" class="danger" type="button">Xóa</button>
+              <button id="event-add" type="button" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg><span>Thêm</span></button>
+              <button id="event-update" type="button" class="btn"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Cập nhật</span></button>
+              <button id="event-delete" type="button" class="btn btn-danger" title="Xoá sự kiện đang chọn (Delete)"><svg class="icon" aria-hidden="true"><use href="#i-trash-2"/></svg><span>Xoá</span></button>
             </div>
           </div>
-          <div id="timeline"></div>
-          <small>Kéo khối sự kiện trên timeline để đổi thời điểm.</small>
-        </section>
+        </div>
+        <div id="timeline"></div>
+        <small class="hint">Kéo khối sự kiện trên timeline để đổi thời điểm. Vạch đỏ là thời gian mô phỏng.</small>
       </section>
-    </main>
+    </div>
+
+    <!-- Toast (thông báo) và hộp thoại xác nhận, thay cho alert/confirm của trình duyệt -->
+    <div id="toast-root" class="toast-root" aria-live="polite"></div>
+    <dialog id="confirm-dialog" class="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-message">
+      <form method="dialog">
+        <header><svg class="icon icon-lg" aria-hidden="true"><use href="#i-triangle-alert"/></svg><h2 id="dialog-title"></h2></header>
+        <p id="dialog-message"></p>
+        <footer>
+          <button type="submit" value="cancel" id="dialog-cancel" class="btn"></button>
+          <button type="submit" value="ok" id="dialog-ok" class="btn btn-primary"></button>
+        </footer>
+      </form>
+    </dialog>
+
     <script type="module" src="ui.js"></script>
   </body>
 </html>
-

@@ -35,6 +35,19 @@ npm test
 
 Cấu hình (tuỳ chọn): sao chép `desktop/.env.example` thành `desktop/.env`. Hiện chỉ `PORT` được dùng; các biến MQTT/AI để dành cho giai đoạn sau. `LOG_VERBOSE=1` ghi log mọi message (mặc định chỉ ghi kết nối và các message đổi trạng thái).
 
+## Giao diện desktop
+
+Bố cục: thanh công cụ trên (Play/Pause/Reset, tên kịch bản, trạng thái server/master/ECU), trái là danh sách kịch bản, giữa là trình soạn kéo thả, phải là thuộc tính xe đang chọn + thông số trực tiếp + biểu đồ 30 s + cấu hình ECU, dưới là timeline (mỗi xe một hàng).
+
+| Phím | Việc |
+|---|---|
+| Space | Play / Pause |
+| Delete | xoá xe hoặc sự kiện đang chọn |
+| Ctrl+S / Ctrl+O | lưu / mở file kịch bản |
+| Shift khi kéo xe | bắt dính khoảng cách theo bước 5 m (mặc định 1 m); xe luôn bắt dính vào giữa làn |
+
+Thông báo dùng toast và hộp thoại trong giao diện (không dùng alert/confirm). Màu, khoảng cách (lưới 8 px), bo góc nằm ở design tokens đầu `desktop/ui/style.css`; canvas editor và biểu đồ đọc cùng các token đó. Font Inter (`@fontsource/inter`) và icon Lucide (sprite SVG inline trong `desktop/ui/index.html`, nguồn `lucide-static`) đều dùng file local, không cần mạng. Ảnh trước/sau: `docs/ui-screenshots/`.
+
 ## Kịch bản mẫu (`desktop/scenarios/`)
 
 | File | Mô tả | Kết quả mong đợi |

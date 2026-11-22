@@ -2,6 +2,7 @@
 
 import { createEmptyScenario, createScenarioEditor, validateScenario } from "./editor.js";
 import { createTimeline } from "./timeline.js";
+import { confirmDialog, icon, isDialogOpen, toast } from "./feedback.js";
 
 const RECONNECT_DELAY_MS = 2000;
 
@@ -53,12 +54,67 @@ export function initUi() {
   let hubScenarioId = null;
   let savedSnapshot = ""; // nội dung editor lúc nạp/lưu gần nhất, để biết có thay đổi chưa lưu
   const simState = document.querySelector("#sim-state");
+  const scenarioList = document.querySelector("#scenario-list");
+  const toolbarName = document.querySelector("#toolbar-scenario-name");
+  const ecuChip = document.querySelector("#ecu-chip");
+  const ecuChipText = document.querySelector("#ecu-chip-text");
+  const canvasEmpty = document.querySelector("#canvas-empty");
+  const css = getComputedStyle(document.documentElement);
+  const token = (name) => css.getPropertyValue(name).trim(); // màu lấy từ design tokens trong style.css
+  let scenariosLoaded = false;
+  let simPlaying = false;
+  let pendingHubScenario = null; // kịch bản hub đang chờ người dùng quyết định thay hay giữ bản nháp
+  let lastSelected = "vehicle"; // phím Delete xoá xe hay sự kiện: theo thứ tự chọn gần nhất
   let validationWarnings = [];
 
-  function showEditorMessage(message, isError = false, isWarning = false) {
+  // Dòng trạng thái ở chân editor (luôn giữ) + toast (trừ khi silent).
+  function showEditorMessage(message, isError = false, isWarning = false, { silent = false } = {}) {
     editorMessage.textContent = message;
+    editorMessage.title = message; // dòng trạng thái bị cắt bằng dấu … thì rê chuột để xem đủ
     editorMessage.classList.toggle("is-error", isError);
     editorMessage.classList.toggle("is-warning", isWarning && !isError);
+    // Toast chỉ hiện tên file cho gọn (đường dẫn đầy đủ vẫn còn ở dòng trạng thái và tooltip).
+    const shortMessage = message.replace(/(?:[A-Za-z]:)?[\\/](?:[^\\/\s]+[\\/])+/g, "…/");
+    if (!silent) toast(isError ? "error" : isWarning ? "warning" : "success", shortMessage);
+  }
+
+  // Tên kịch bản trên thanh công cụ và trạng thái rỗng của canvas.
+  function updateTitleAndEmpty() {
+    toolbarName.textContent = editorName.value.trim() || "Kịch bản chưa đặt tên";
+    canvasEmpty.hidden = editor.getScenario().vehicles.length > 0;
+  }
+
+  function renderScenarioList() {
+    scenarioList.innerHTML = "";
+    if (!scenariosLoaded || scenarios.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.innerHTML = scenariosLoaded
+        ? `${icon("folder-open", "icon icon-lg")}<strong>Chưa có kịch bản</strong><span>Thêm file .json vào thư mục desktop/scenarios hoặc dùng nút Mở.</span>`
+        : "<span>Đang tải danh sách…</span>";
+      scenarioList.append(empty);
+      return;
+    }
+    for (const item of scenarios) {
+      const active = item.id === scenarioSelect.value;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `scenario-item${active ? " is-active" : ""}`;
+      button.dataset.id = item.id;
+      button.setAttribute("role", "option");
+      button.setAttribute("aria-selected", String(active));
+      button.title = item.description || item.name;
+      button.innerHTML = "<strong></strong><small></small>";
+      button.querySelector("strong").textContent = item.name;
+      button.querySelector("small").textContent = item.description || "";
+      // Danh sách chỉ là cách hiển thị: chọn mục = đổi <select> ẩn rồi chạy đúng logic cũ.
+      button.addEventListener("click", () => {
+        scenarioSelect.value = item.id;
+        scenarioSelect.dispatchEvent(new Event("change"));
+        renderScenarioList();
+      });
+      scenarioList.append(button);
+    }
   }
 
   function showSelectedVehicle(vehicle) {
@@ -75,6 +131,7 @@ export function initUi() {
     onChange(nextScenario) {
       currentScenario = nextScenario;
       timeline?.refresh();
+      updateTitleAndEmpty();
     },
     onSelect: showSelectedVehicle,
   });
@@ -87,7 +144,7 @@ export function initUi() {
     },
   });
 
-  function loadIntoEditor(scenario, message = "Đã nạp kịch bản vào editor.") {
+  function loadIntoEditor(scenario, message = "Đã nạp kịch bản vào editor.", { silent = false } = {}) {
     currentScenario = JSON.parse(JSON.stringify(scenario));
     editorName.value = currentScenario.name || "";
     editorDescription.value = currentScenario.description || "";
@@ -100,12 +157,14 @@ export function initUi() {
     timeline.setTime(0);
     timeline.refresh();
     savedSnapshot = JSON.stringify(editor.getScenario());
-    showEditorMessage(message);
+    updateTitleAndEmpty();
+    showEditorMessage(message, false, false, { silent });
   }
 
   const isDirty = () => JSON.stringify(editor.getScenario()) !== savedSnapshot;
 
   function showSimState(action) {
+    simPlaying = action === "play";
     simState.textContent = action === "play" ? "Mô phỏng: đang chạy" : action === "reset" ? "Mô phỏng: về đầu, đang dừng" : "Mô phỏng: đang dừng";
   }
 
@@ -121,6 +180,7 @@ export function initUi() {
       timeGap: Number(editorTimeGap.value),
     };
     editor.setScenario(nextScenario);
+    updateTitleAndEmpty();
   }
 
   function checkedScenario() {
@@ -154,9 +214,9 @@ export function initUi() {
     const now = history.at(-1)?.time || 0;
 
     chartContext.clearRect(0, 0, width, height);
-    chartContext.fillStyle = "#101419";
+    chartContext.fillStyle = token("--bg-0");
     chartContext.fillRect(0, 0, width, height);
-    chartContext.strokeStyle = "#2e353d";
+    chartContext.strokeStyle = token("--line");
     chartContext.lineWidth = 1;
 
     for (let row = 0; row <= 3; row += 1) {
@@ -190,9 +250,16 @@ export function initUi() {
       chartContext.stroke();
     }
 
-    drawLine("speed", 120, "#71a7ff");
-    drawLine("distance", 150, "#35d07f");
-    drawLine("ttc", 30, "#f5b942");
+    drawLine("speed", 120, token("--accent"));
+    drawLine("distance", 150, token("--success"));
+    drawLine("ttc", 30, token("--warning"));
+
+    if (history.length === 0) {
+      chartContext.fillStyle = token("--text-dim");
+      chartContext.font = '500 13px Inter, "Segoe UI", sans-serif';
+      chartContext.textAlign = "center";
+      chartContext.fillText("Chưa có dữ liệu — mở tab master rồi bấm Play", width / 2, height / 2 + 4);
+    }
   }
 
   function selectScenario(id) {
@@ -213,12 +280,14 @@ export function initUi() {
       scenarioSelect.appendChild(option);
     }
 
+    scenariosLoaded = true;
     scenarioSelect.disabled = scenarios.length === 0;
     const stillExists = scenarios.some((scenario) => scenario.id === previousValue);
     if (stillExists) scenarioSelect.value = previousValue;
     if (scenarios.some((scenario) => scenario.id === hubScenarioId)) scenarioSelect.value = hubScenarioId;
     // Chỉ tự chọn khi hub CHƯA có kịch bản; nối lại thì giữ nguyên lần chạy đang có.
     if (!hubHasScenario && scenarios.length > 0) selectScenario(scenarioSelect.value);
+    renderScenarioList();
   }
 
   function setServerStatus(online) {
@@ -240,6 +309,8 @@ export function initUi() {
   }
 
   function updateEgo(data) {
+    ecuChip.dataset.state = data.state || "";
+    ecuChipText.textContent = `ECU · ${data.mode || "ACC"} · ${data.state || "CRUISE"}`;
     egoSpeedValue.textContent = formatNumber(data.speed);
     warningValue.textContent = data.warning || "NONE";
     warningValue.classList.toggle("is-warning", data.warning === "FCW");
@@ -296,9 +367,28 @@ export function initUi() {
           hubScenarioId = message.id || null;
           if (hubScenarioId && scenarios.some((scenario) => scenario.id === hubScenarioId)) scenarioSelect.value = hubScenarioId;
           scenarioDescription.textContent = message.data.description || message.data.name;
+          renderScenarioList();
           // Có thay đổi chưa lưu trong editor thì hỏi trước khi thay bằng kịch bản của hub.
-          if (!isDirty() || window.confirm("Editor có thay đổi chưa lưu. Thay bằng kịch bản đang chạy trên hub?")) loadIntoEditor(message.data);
-          else showEditorMessage("Giữ bản nháp trong editor; kịch bản đang chạy trên hub là: " + message.data.name);
+          const applyLoad = (data) => loadIntoEditor(data, "Đã nạp kịch bản vào editor.", { silent: true });
+          if (!isDirty()) applyLoad(message.data);
+          else if (pendingHubScenario) pendingHubScenario = message.data; // đang hỏi rồi: chỉ cập nhật bản mới nhất
+          else {
+            pendingHubScenario = message.data;
+            confirmDialog({
+              title: "Có thay đổi chưa lưu",
+              message: "Editor đang có thay đổi chưa lưu. Thay bằng kịch bản đang chạy trên hub sẽ làm mất bản nháp này.",
+              confirmText: "Thay bằng kịch bản của hub",
+              cancelText: "Giữ bản nháp",
+              danger: true,
+            }).then((replace) => {
+              const latest = pendingHubScenario;
+              pendingHubScenario = null;
+              if (replace) return applyLoad(latest);
+              const text = "Giữ bản nháp trong editor; kịch bản đang chạy trên hub là: " + latest.name;
+              showEditorMessage(text, false, false, { silent: true });
+              toast("info", text);
+            });
+          }
           history = [];
           latestSensor = null;
           drawHistory();
@@ -320,7 +410,7 @@ export function initUi() {
           driveModeValue.textContent = message.data.mode || "ACC";
           for (const input of timeGapInputs) input.checked = Number(input.value) === Number(message.data.timeGap || 1.8);
         }
-        if (message.type === "error") scenarioDescription.textContent = message.data.message;
+        if (message.type === "error") toast("error", message.data.message);
       } catch (error) {
         console.warn("Bỏ qua message hub không hợp lệ:", error);
       }
@@ -384,14 +474,45 @@ export function initUi() {
     const scenario = checkedScenario();
     if (!scenario) return;
     const sent = send({ type: "scenario:load", data: scenario });
-    if (sent) send({ type: "sim:control", action: "play" });
+    if (sent) {
+      send({ type: "sim:control", action: "play" });
+      showSimState("play");
+    }
     const warningText = validationWarnings.length ? ` CẢNH BÁO: ${validationWarnings.join(" • ")}` : "";
     showEditorMessage(sent ? `Đã gửi kịch bản sang web và bắt đầu Play.${warningText}` : "Server chưa kết nối.", !sent, sent && validationWarnings.length > 0);
   });
 
   connect();
   drawHistory();
-  loadIntoEditor(currentScenario, "Sẵn sàng tạo kịch bản.");
+  loadIntoEditor(currentScenario, "Sẵn sàng tạo kịch bản.", { silent: true });
+  renderScenarioList();
+
+  // ---- Phím tắt: Space (Play/Pause), Delete (xoá xe/sự kiện), Ctrl+S (lưu), Ctrl+O (mở) ----
+  document.querySelector("#scenario-canvas").addEventListener("pointerdown", () => { lastSelected = "vehicle"; });
+  document.querySelector("#timeline").addEventListener("click", (event) => { if (event.target.closest(".timeline-event")) lastSelected = "event"; });
+  const isTyping = (target) => Boolean(target.closest?.("input, textarea, select"));
+  document.addEventListener("keydown", (event) => {
+    if (isDialogOpen()) return;
+    const modifier = event.ctrlKey || event.metaKey;
+    const key = event.key.toLowerCase();
+    if (modifier && key === "s") { event.preventDefault(); document.querySelector("#scenario-save").click(); return; }
+    if (modifier && key === "o") { event.preventDefault(); document.querySelector("#scenario-open").click(); return; }
+    if (isTyping(event.target)) return;
+    if (event.code === "Space") {
+      event.preventDefault();
+      document.querySelector(`[data-action="${simPlaying ? "pause" : "play"}"]`).click();
+    }
+    if (event.key === "Delete") {
+      event.preventDefault();
+      const eventFirst = lastSelected === "event" && timeline.hasSelection();
+      if (eventFirst || (!editor.getSelected() && timeline.hasSelection())) document.querySelector("#event-delete").click();
+      else if (editor.getSelected()) document.querySelector("#vehicle-delete").click();
+    }
+  });
+  // Nút đang có focus không được tự kích hoạt lại khi nhả phím Space (đã xử lý ở keydown).
+  document.addEventListener("keyup", (event) => {
+    if (event.code === "Space" && !isTyping(event.target) && !isDialogOpen()) event.preventDefault();
+  });
 }
 
 initUi();

@@ -45,10 +45,10 @@ function registerScenarioFileHandlers() {
 
 function createWindow() {
   const window = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 800,
-    minHeight: 600,
+    width: 1360,
+    height: 860,
+    minWidth: 1000,
+    minHeight: 640,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
